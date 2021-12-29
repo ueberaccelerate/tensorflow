@@ -59,6 +59,7 @@ set(CMAKE_PREFIX_PATH
   ${CMAKE_PREFIX_PATH}
 )
 include(CMakeDependentOption)
+
 option(TFLITE_ENABLE_RUY "Enable experimental RUY integration" OFF)
 option(TFLITE_ENABLE_RESOURCE "Enable experimental support for resources" ON)
 option(TFLITE_ENABLE_NNAPI "Enable NNAPI (Android only)." ON)
@@ -77,15 +78,16 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
   set(_TFLITE_ENABLE_RUY ON)
 endif()
 set(_TFLITE_ENABLE_NNAPI "${TFLITE_ENABLE_NNAPI}")
-if(NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-  set(_TFLITE_ENABLE_NNAPI OFF)
-endif()
+#if(NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
+#  set(_TFLITE_ENABLE_NNAPI OFF)
+#endif()
 set(_TFLITE_ENABLE_MMAP "${TFLITE_ENABLE_MMAP}")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # See https://github.com/tensorflow/tensorflow/blob/\
   # 2b96f3662bd776e277f86997659e61046b56c315/tensorflow/lite/tools/make/\
   # Makefile#L157
   set(_TFLITE_ENABLE_MMAP OFF)
+  set(_TFLITE_ENABLE_NNAPI OFF)
 endif()
 # Simplifies inclusion of non-test sources and headers from a directory.
 # SOURCE_DIR: Directory to search for files.
@@ -136,6 +138,7 @@ find_package(flatbuffers REQUIRED)
 find_package(gemmlowp REQUIRED)
 find_package(neon2sse REQUIRED)
 find_package(ruy REQUIRED)
+
 # Generate TensorFlow Lite FlatBuffer code.
 # We used to have an actual compilation logic with flatc but decided to use
 # schema_generated.h since flatc doesn't work with cross compilation.

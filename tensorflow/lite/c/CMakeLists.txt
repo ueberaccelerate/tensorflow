@@ -16,7 +16,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(tensorflow-lite-c C CXX)
 
+include(GNUInstallDirs)
+
 option(TFLITE_C_BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 
 set(TENSORFLOW_SOURCE_DIR "" CACHE PATH
   "Directory that contains the TensorFlow project"
@@ -27,6 +30,8 @@ if (NOT TENSORFLOW_SOURCE_DIR)
     ABSOLUTE
   )
 endif()
+
+file(GLOB_RECURSE TFL_INC_HEADERS "${TENSORFLOW_SOURCE_DIR}/tensorflow/lite/*.h")
 
 add_subdirectory(
   "${TENSORFLOW_SOURCE_DIR}/tensorflow/lite"
@@ -85,3 +90,12 @@ endif()
 target_link_libraries(tensorflowlite_c
   tensorflow-lite
 )
+
+install( TARGETS tensorflowlite_c DESTINATION ${CMAKE_INSTALL_LIBDIR} )
+
+foreach ( file ${TFL_INC_HEADERS} )
+    get_filename_component( dir ${file} DIRECTORY )
+    string(REGEX REPLACE "${TENSORFLOW_SOURCE_DIR}/" "" dir_ ${dir})
+    install( FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${dir_} )
+    # message(STATUS "Installing ${file} into ${CMAKE_INSTALL_INCLUDEDIR}/${dir_}")
+endforeach()
