@@ -15,11 +15,25 @@
 
 cmake_minimum_required(VERSION 3.16)
 project(tensorflow-lite-c C CXX)
+set (PROJECT_VERSION_MAJOR 2)
+set (PROJECT_VERSION_MINOR 4)
+set (PROJECT_VERSION_PATCH 3)
+set (PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+set (TENSORFLOW_LITE_C_NAME tensorflowlite_c)
+set (TENSORFLOW_LITE_C_NAME_UPPER TENSORFLOWLITE_C )
 
 include(GNUInstallDirs)
 
 option(TFLITE_C_BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+if(TFLITE_C_BUILD_SHARED_LIBS)
+    set( TENSORFLOW_LITE_C_SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set( TENSORFLOW_LITE_C_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
+else()
+    set( TENSORFLOW_LITE_C_SUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set( TENSORFLOW_LITE_C_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
+endif()
 
 set(TENSORFLOW_SOURCE_DIR "" CACHE PATH
   "Directory that contains the TensorFlow project"
@@ -91,7 +105,10 @@ target_link_libraries(tensorflowlite_c
   tensorflow-lite
 )
 
-install( TARGETS tensorflowlite_c DESTINATION ${CMAKE_INSTALL_LIBDIR} )
+install( TARGETS tensorflowlite_c 
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 foreach ( file ${TFL_INC_HEADERS} )
     get_filename_component( dir ${file} DIRECTORY )
@@ -99,3 +116,16 @@ foreach ( file ${TFL_INC_HEADERS} )
     install( FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${dir_} )
     # message(STATUS "Installing ${file} into ${CMAKE_INSTALL_INCLUDEDIR}/${dir_}")
 endforeach()
+
+configure_file (project-config.cmake.in ${PROJECT_NAME}-config.cmake @ONLY)
+configure_file (project-config-version.cmake.in
+  ${PROJECT_NAME}-config-version.cmake @ONLY)
+  
+install (FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  
+install (FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}")
+

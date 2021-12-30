@@ -39,6 +39,7 @@ cmake_policy(SET CMP0028 NEW)
 cmake_policy(SET CMP0042 NEW)
 project(tensorflow-lite C CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(TENSORFLOW_SOURCE_DIR "" CACHE PATH
   "Directory that contains the TensorFlow project"
 )
